@@ -25,6 +25,7 @@ pip3 install gnupg
 ```
 
 ## TODO
-- if homedir does not exists
-- empty key file handling 
+- Handling: if homedir does not exist
+- Handling: empty key file 
+- Catch Exceptions
 
