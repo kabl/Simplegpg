@@ -24,6 +24,12 @@ pip3 install questionary
 pip3 install gnupg
 ```
 
+## Release 
+
+```bash
+pyinstaller simplegpg.py --onefile
+```
+
 ## TODO
 - Handling: if homedir does not exist
 - Handling: empty key file 

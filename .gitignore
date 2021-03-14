@@ -4,4 +4,6 @@ id3
 __pycache__
 .idea
 deprecated
+build
+*.spec
 
