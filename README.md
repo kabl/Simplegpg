@@ -24,6 +24,20 @@ pip3 install questionary
 pip3 install gnupg
 ```
 
+## Execute
+
+Directly with Python
+
+```bash
+python3 simplegpg.py
+```
+
+Executable Linux / Ubuntu distro
+
+```bash
+./dist/simplegpg
+```
+
 ## Release 
 
 ```bash
@@ -34,4 +48,6 @@ pyinstaller simplegpg.py --onefile
 - Handling: if homedir does not exist
 - Handling: empty key file 
 - Catch Exceptions
+- Better representation of decrypted messages
+
 
