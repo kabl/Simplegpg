@@ -14,7 +14,10 @@ tools.
 
 ## Dependencies
 
-Based on Python 3.
+Environment:
+ - Python 3.8
+ - gpg (GnuPG) 2.2.19
+ - Ubuntu 20.04.2 LTS.
 
 ```bash
 sudo apt install gpg
@@ -32,7 +35,7 @@ Directly with Python
 python3 simplegpg.py
 ```
 
-Executable Linux / Ubuntu distro
+Executable Linux / Requires at least Ubuntu 20.04.2 LTS.
 
 ```bash
 ./dist/simplegpg
@@ -42,6 +45,17 @@ Executable Linux / Ubuntu distro
 
 ```bash
 pyinstaller simplegpg.py --onefile
+```
+
+## Issues
+
+Running on a VM may cause some issues with gpg. As gpg will show a window to enter 
+the password for the keystore. Workaround:
+
+```bash
+GPG_TTY=$(tty)
+export GPG_TTY
+./dist/simplegpg
 ```
 
 ## TODO
