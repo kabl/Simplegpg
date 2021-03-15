@@ -2,6 +2,10 @@ import questionary
 import sys
 import gnupg
 
+STYLE_TXT = "fg:#FFD433"
+STYLE_MENU = "bold underline fg:#FFD433"
+STYLE_ERR = "fg:#f44336"
+
 
 class SimpleGPG:
 
@@ -16,8 +20,12 @@ class SimpleGPG:
                    "Encrypt and Sign": self.encrypt,
                    "Decrypt": self.decrypt,
                    "Exit": sys.exit}
+        print(questionary.Style)
         while True:
-            selection = questionary.select("Select your task", choices=choices.keys()).ask()
+            questionary.print("")
+            questionary.print("### SIMPLEGPG - MENU ###", style=STYLE_MENU)
+            questionary.print("")
+            selection = questionary.rawselect("Select your task", choices=choices.keys()).ask()
             choices[selection]()
 
     def key_management(self):
@@ -26,7 +34,7 @@ class SimpleGPG:
                    "Export Key": self.export_key,
                    "List Keys": self.list_keys,
                    "Back": self.main_menu}
-        selection = questionary.select("Select your task", choices=choices.keys()).ask()
+        selection = questionary.rawselect("Select your task", choices=choices.keys()).ask()
         choices[selection]()
 
     def create_keypair(self):
@@ -34,7 +42,7 @@ class SimpleGPG:
         name = questionary.text("What's your fullname?").ask()
         email = questionary.text("What's your e-mail address?").ask()
         length_options = ["1024", "2048", "4096"]
-        key_length = questionary.select("Key Length", choices=length_options).ask()
+        key_length = questionary.rawselect("Key Length", choices=length_options).ask()
 
         input_data = self.gpg.gen_key_input(key_type="RSA",
                                             key_length=int(key_length),
@@ -43,7 +51,7 @@ class SimpleGPG:
         proceed = questionary.confirm("Generate?").ask()
         if proceed:
             key = self.gpg.gen_key(input_data)
-            print("Key generated:", key)
+            questionary.print("Key generated: " + key, style=STYLE_TXT)
 
     def import_public_key(self):
         key = questionary.text("Enter public key to import:", multiline=True).ask()
@@ -52,15 +60,21 @@ class SimpleGPG:
             print(import_result)
             print(import_result.count)
             print(import_result.fingerprints)
-            print("Import Failed")
+            questionary.print("Import Failed", style=STYLE_ERR)
         else:
-            print("Import Succeed")
+            questionary.print("Import Succeed", style=STYLE_TXT)
 
     def list_keys(self):
         public_keys = self.gpg.list_keys(False)
+
+        is_empty = True
         for pub_key in public_keys:
             for uid in pub_key['uids']:
-                print(pub_key['keyid'] + "\t" + uid)
+                questionary.print(pub_key['keyid'] + "\t" + uid, style=STYLE_TXT)
+                is_empty = False
+
+        if is_empty:
+            questionary.print("No keys configured", style=STYLE_TXT)
 
     def export_key(self):
         choices = {}
@@ -69,11 +83,11 @@ class SimpleGPG:
             for uid in pub_key['uids']:
                 choices[uid] = pub_key['keyid']
 
-        selection = questionary.select("Select Public Key to export", choices=choices.keys()).ask()
+        selection = questionary.rawselect("Select Public Key to export", choices=choices.keys()).ask()
 
         selected_key_id = choices[selection][0:16]
         key = self.gpg.export_keys(selected_key_id)
-        print(key)
+        questionary.print(key, style=STYLE_TXT)
 
     def encrypt(self):
         signer_key = self.select_id()
@@ -81,17 +95,18 @@ class SimpleGPG:
         message = questionary.text("Enter message to encrypt:", multiline=True).ask()
         encrypted_ascii_data = self.gpg.encrypt(message, recipient, sign=signer_key, always_trust=True)
         if encrypted_ascii_data.ok:
-            print(str(encrypted_ascii_data))
+            questionary.print(str(encrypted_ascii_data), style=STYLE_TXT)
         else:
-            print("Encryption failed. " + encrypted_ascii_data.status + ", " + encrypted_ascii_data.stderr)
+            questionary.print("Encryption failed. " + encrypted_ascii_data.status + ", " + encrypted_ascii_data.stderr,
+                              style=STYLE_ERR)
 
     def decrypt(self):
         message = questionary.text("Enter message to decrypt:", multiline=True).ask()
         decrypted = self.gpg.decrypt(message)
         if decrypted.ok:
-            print(decrypted)
+            questionary.print(decrypted, style=STYLE_TXT)
         else:
-            print("Decryption failed: " + decrypted.status)
+            questionary.print("Decryption failed: " + decrypted.status, style=STYLE_ERR)
 
     def select_id(self):
         choices = {}
@@ -100,7 +115,7 @@ class SimpleGPG:
             for uid in pub_key['uids']:
                 choices[uid] = pub_key['keyid']
 
-        selection = questionary.select("Which ID do you want to use?", choices=choices.keys()).ask()
+        selection = questionary.rawselect("Which ID do you want to use?", choices=choices.keys()).ask()
 
         selected_key_id = choices[selection][0:16]
         return selected_key_id
@@ -112,7 +127,7 @@ class SimpleGPG:
             for uid in pub_key['uids']:
                 choices[uid] = pub_key['keyid']
 
-        selection = questionary.select("Select Recipient", choices=choices.keys()).ask()
+        selection = questionary.rawselect("Select Recipient", choices=choices.keys()).ask()
 
         selected_key_id = choices[selection][0:16]
         return selected_key_id

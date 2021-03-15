@@ -64,4 +64,8 @@ export GPG_TTY
 - Catch Exceptions
 - Better representation of decrypted messages
 
+## Other Apps
+
+- Password manager / GPG Key manager: seahorse
+- GPG Encrypt/Decrypt applet. openpgp-applet
 
