@@ -20,12 +20,11 @@ class SimpleGPG:
                    "Encrypt and Sign": self.encrypt,
                    "Decrypt": self.decrypt,
                    "Exit": sys.exit}
-        print(questionary.Style)
         while True:
             questionary.print("")
             questionary.print("### SIMPLEGPG - MENU ###", style=STYLE_MENU)
             questionary.print("")
-            selection = questionary.rawselect("Select your task", choices=choices.keys()).ask()
+            selection = questionary.select("Select your task", choices=choices.keys(), use_shortcuts=True).ask()
             choices[selection]()
 
     def key_management(self):
@@ -33,8 +32,12 @@ class SimpleGPG:
                    "Import Public Key": self.import_public_key,
                    "Export Key": self.export_key,
                    "List Keys": self.list_keys,
-                   "Back": self.main_menu}
-        selection = questionary.rawselect("Select your task", choices=choices.keys()).ask()
+                   "Back": None}
+        selection = questionary.select("Select your task", choices=choices.keys(), use_shortcuts=True).ask()
+
+        if selection is "Back":
+            return
+
         choices[selection]()
 
     def create_keypair(self):
@@ -42,7 +45,7 @@ class SimpleGPG:
         name = questionary.text("What's your fullname?").ask()
         email = questionary.text("What's your e-mail address?").ask()
         length_options = ["1024", "2048", "4096"]
-        key_length = questionary.rawselect("Key Length", choices=length_options).ask()
+        key_length = questionary.select("Key Length", choices=length_options, use_shortcuts=True).ask()
 
         input_data = self.gpg.gen_key_input(key_type="RSA",
                                             key_length=int(key_length),
@@ -83,7 +86,12 @@ class SimpleGPG:
             for uid in pub_key['uids']:
                 choices[uid] = pub_key['keyid']
 
-        selection = questionary.rawselect("Select Public Key to export", choices=choices.keys()).ask()
+        choices["Back"] = None
+
+        selection = questionary.select("Select Public Key to export", choices=choices.keys(), use_shortcuts=True).ask()
+
+        if selection == "Back":
+            return
 
         selected_key_id = choices[selection][0:16]
         key = self.gpg.export_keys(selected_key_id)
@@ -91,8 +99,20 @@ class SimpleGPG:
 
     def encrypt(self):
         signer_key = self.select_id()
+
+        if signer_key is None:
+            return
+
         recipient = self.select_recipient()
+
+        if recipient is None:
+            return
+
         message = questionary.text("Enter message to encrypt:", multiline=True).ask()
+
+        if message is None:
+            return
+
         encrypted_ascii_data = self.gpg.encrypt(message, recipient, sign=signer_key, always_trust=True)
         if encrypted_ascii_data.ok:
             questionary.print(str(encrypted_ascii_data), style=STYLE_TXT)
@@ -102,6 +122,10 @@ class SimpleGPG:
 
     def decrypt(self):
         message = questionary.text("Enter message to decrypt:", multiline=True).ask()
+
+        if message is None:
+            return
+
         decrypted = self.gpg.decrypt(message)
         if decrypted.ok:
             questionary.print(decrypted, style=STYLE_TXT)
@@ -115,7 +139,10 @@ class SimpleGPG:
             for uid in pub_key['uids']:
                 choices[uid] = pub_key['keyid']
 
-        selection = questionary.rawselect("Which ID do you want to use?", choices=choices.keys()).ask()
+        selection = questionary.select("Which ID do you want to use?", choices=choices.keys(), use_shortcuts=True).ask()
+
+        if selection is None:
+            return None
 
         selected_key_id = choices[selection][0:16]
         return selected_key_id
@@ -127,7 +154,10 @@ class SimpleGPG:
             for uid in pub_key['uids']:
                 choices[uid] = pub_key['keyid']
 
-        selection = questionary.rawselect("Select Recipient", choices=choices.keys()).ask()
+        selection = questionary.select("Select Recipient", choices=choices.keys(), use_shortcuts=True).ask()
+
+        if selection is None:
+            return None
 
         selected_key_id = choices[selection][0:16]
         return selected_key_id
