@@ -25,6 +25,7 @@ sudo apt install gpg
 pip3 install argparse
 pip3 install questionary
 pip3 install gnupg
+pip3 install pyperclip
 ```
 
 ## Execute
@@ -59,10 +60,11 @@ export GPG_TTY
 ```
 
 ## TODO
+- Delete keys (requires the fingerprint of the key)
 - Handling: if homedir does not exist
-- Handling: empty key file 
-- Catch Exceptions
-- Better representation of decrypted messages
+- [x] Handling: empty key file 
+- [x] Catch Exceptions
+- [x] Better representation of decrypted messages
 
 ## Other Apps
 
