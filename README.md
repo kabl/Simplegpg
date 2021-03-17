@@ -24,7 +24,7 @@ sudo apt install gpg
 
 pip3 install argparse
 pip3 install questionary
-pip3 install gnupg
+pip3 install python-gnupg
 pip3 install pyperclip
 ```
 

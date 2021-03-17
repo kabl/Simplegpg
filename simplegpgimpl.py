@@ -37,7 +37,7 @@ class SimpleGPG:
                    "Back": None}
         selection = questionary.select("Select your task", choices=choices.keys(), use_shortcuts=True).ask()
 
-        if selection is "Back":
+        if selection == "Back":
             return
 
         choices[selection]()
@@ -74,7 +74,6 @@ class SimpleGPG:
 
         is_empty = True
         for pub_key in public_keys:
-            print(pub_key)
             for uid in pub_key['uids']:
                 questionary.print(pub_key['keyid'] + "\t" + uid, style=STYLE_TXT)
                 is_empty = False
@@ -136,7 +135,7 @@ class SimpleGPG:
 
         decrypted = self.gpg.decrypt(message)
         if decrypted.ok:
-            questionary.print(decrypted, style=STYLE_TXT)
+            questionary.print(str(decrypted), style=STYLE_TXT)
         else:
             questionary.print("Decryption failed: " + decrypted.status, style=STYLE_ERR)
 
@@ -161,7 +160,6 @@ class SimpleGPG:
             return
 
         result = self.gpg.verify(message)
-        print(result.status)
         if result:
             questionary.print("Valid data", style=STYLE_TXT)
         else:
