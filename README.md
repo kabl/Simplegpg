@@ -61,7 +61,7 @@ export GPG_TTY
 
 ## TODO
 - Delete keys (requires the fingerprint of the key)
-- Handling: if homedir does not exist
+- [x] Handling: if homedir does not exist
 - [x] Handling: empty key file 
 - [x] Catch Exceptions
 - [x] Better representation of decrypted messages
