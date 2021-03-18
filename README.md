@@ -62,7 +62,13 @@ Executable Linux / Requires at least Ubuntu 20.04.2 LTS.
 ## Release 
 
 ```bash
-pyinstaller simplegpg.py --onefile
+
+# Linux bundle
+pyinstaller simplegpg.py --onefile --clean --name simplegpg-linux
+
+# Mac bundle
+pyinstaller simplegpg.py --onefile --clean --name simplegpg-mac
+
 ```
 
 ## Issues
