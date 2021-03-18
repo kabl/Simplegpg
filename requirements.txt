@@ -1,0 +1,4 @@
+argparse==1.4.0
+questionary==1.9.0
+pyperclip==1.8.2
+python-gnupg==0.4.7
