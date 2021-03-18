@@ -19,6 +19,7 @@ Environment:
  - gpg (GnuPG) 2.2.19
  - Ubuntu 20.04.2 LTS.
 
+### Global
 ```bash
 sudo apt install gpg
 
@@ -26,6 +27,22 @@ pip3 install argparse
 pip3 install questionary
 pip3 install python-gnupg
 pip3 install pyperclip
+```
+
+### With venv
+
+```bash
+# Create venv environment
+virtualenv venv
+
+# Activate venv
+source venv/bin/activate
+
+# Install requirements
+python3 -m pip install -r requirements.txt
+
+# Leave environment
+deactivate
 ```
 
 ## Execute
