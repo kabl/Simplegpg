@@ -20,5 +20,5 @@ if __name__ == '__main__':
     home_dir = os.path.expanduser("~/.gnupg")
     if args.homedir:
         home_dir = args.homedir
-    os.system('cls||clear')
+
     SimpleGPG(home_dir).main_menu()

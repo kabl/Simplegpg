@@ -2,7 +2,7 @@ import questionary
 import sys
 import gnupg
 import pyperclip
-
+import os
 STYLE_TXT = "fg:#FFD433"
 STYLE_MENU = "bold underline fg:#FFD433"
 STYLE_ERR = "fg:#f44336"
@@ -11,8 +11,12 @@ STYLE_ERR = "fg:#f44336"
 class SimpleGPG:
 
     def __init__(self, home_dir):
+        if not os.path.isdir(home_dir):
+            questionary.print("Directory does not exists:" + home_dir, style=STYLE_ERR)
+            sys.exit(1)
         self.gpg = gnupg.GPG(gnupghome=home_dir)
         self.gpg.encoding = 'utf-8'
+        os.system('cls||clear')
 
     def main_menu(self):
         choices = {"Key Management": self.key_management,
@@ -55,8 +59,11 @@ class SimpleGPG:
                                             name_email=email)
         proceed = questionary.confirm("Generate?").ask()
         if proceed:
-            key = self.gpg.gen_key(input_data)
-            questionary.print("Key generated: " + key, style=STYLE_TXT)
+            key_id = self.gpg.gen_key(input_data)
+            key_id = str(key_id)
+            questionary.print("Key generated: " + key_id, style=STYLE_TXT)
+            print()
+            self.print_key(key_id)
 
     def import_public_key(self):
         key = questionary.text("Enter public key to import:", multiline=True).ask()
@@ -96,9 +103,7 @@ class SimpleGPG:
             return
 
         selected_key_id = choices[selection][0:16]
-        key = self.gpg.export_keys(selected_key_id)
-        questionary.print(key, style=STYLE_TXT)
-        self.add_to_clipboard(key)
+        self.print_key(selected_key_id)
 
     def encrypt_and_sign(self):
         self.encrypt(sign=True)
@@ -192,6 +197,11 @@ class SimpleGPG:
 
         selected_key_id = choices[selection][0:16]
         return selected_key_id
+
+    def print_key(self, key_id):
+        key = self.gpg.export_keys(key_id)
+        questionary.print(key, style=STYLE_TXT)
+        self.add_to_clipboard(key)
 
     def add_to_clipboard(self, text):
         pyperclip.copy(text)
