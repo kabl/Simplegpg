@@ -20,7 +20,7 @@ class SimpleGPG:
 
     def not_existing_directory(self, home_dir):
         question = "Directory '" + home_dir + "' does not exists. Create a directory?"
-        result = questionary.confirm(question).ask()
+        result = questionary.confirm(question).unsafe_ask()
         if result:
             try:
                 os.mkdir(home_dir)
@@ -40,22 +40,24 @@ class SimpleGPG:
                    "Verify Signature": self.verify_signature,
                    "Exit": sys.exit}
         while True:
-            questionary.print("")
-            questionary.print("### SIMPLEGPG - MENU ###", style=STYLE_MENU)
-            questionary.print("")
-            selection = questionary.select("Select your task", choices=choices.keys(), use_shortcuts=True).ask()
-            if selection is None:
-                return
+            try:
+                questionary.print("")
+                questionary.print("### SIMPLEGPG - MENU ###", style=STYLE_MENU)
+                questionary.print("")
+                selection = questionary.select("Select your task", choices=choices.keys(), use_shortcuts=True).unsafe_ask()
 
-            choices[selection]()
+                choices[selection]()
+            except KeyboardInterrupt:
+                questionary.print(">> Action aborted", style=STYLE_ERR)
+
 
     def key_management(self):
         choices = {"Create Keypair": self.create_keypair,
                    "Import Public Key": self.import_public_key,
-                   "Export Key": self.export_key,
+                   "Export Public Key": self.export_key,
                    "List Keys": self.list_keys,
                    "Back": None}
-        selection = questionary.select("Select your task", choices=choices.keys(), use_shortcuts=True).ask()
+        selection = questionary.select("Select your task", choices=choices.keys(), use_shortcuts=True).unsafe_ask()
 
         if selection == "Back":
             return
@@ -64,16 +66,17 @@ class SimpleGPG:
 
     def create_keypair(self):
         questionary.print("Creating a new ID/Key", style=STYLE_TXT)
-        name = questionary.text("What's your fullname?").ask()
-        email = questionary.text("What's your e-mail address?").ask()
+
+        name = questionary.text("What's your fullname?").unsafe_ask()
+        email = questionary.text("What's your e-mail address?").unsafe_ask()
         length_options = ["1024", "2048", "4096"]
-        key_length = questionary.select("Key Length", choices=length_options, use_shortcuts=True).ask()
+        key_length = questionary.select("Key Length", choices=length_options, use_shortcuts=True).unsafe_ask()
 
         input_data = self.gpg.gen_key_input(key_type="RSA",
                                             key_length=int(key_length),
                                             name_real=name,
                                             name_email=email)
-        proceed = questionary.confirm("Generate?").ask()
+        proceed = questionary.confirm("Generate?").unsafe_ask()
         if proceed:
             key_id = self.gpg.gen_key(input_data)
             key_id = str(key_id)
@@ -82,9 +85,7 @@ class SimpleGPG:
             self.print_key(key_id)
 
     def import_public_key(self):
-        key = questionary.text("Enter public key to import:", multiline=True).ask()
-        if key is None:
-            return
+        key = questionary.text("Enter public key to import:", multiline=True).unsafe_ask()
 
         import_result = self.gpg.import_keys(key)
         if import_result.count == 0:
@@ -116,7 +117,7 @@ class SimpleGPG:
 
         choices["Back"] = None
 
-        selection = questionary.select("Select Public Key to export", choices=choices.keys(), use_shortcuts=True).ask()
+        selection = questionary.select("Select Public Key to export", choices=choices.keys(), use_shortcuts=True).unsafe_ask()
 
         if selection == "Back":
             return
@@ -139,9 +140,7 @@ class SimpleGPG:
         if recipient is None:
             return
 
-        message = questionary.text("Enter message to encrypt:", multiline=True).ask()
-        if message is None:
-            return
+        message = questionary.text("Enter message to encrypt:", multiline=True).unsafe_ask()
 
         encrypted_ascii_data = self.gpg.encrypt(message, recipient, sign=signer_key, always_trust=True)
         if encrypted_ascii_data.ok:
@@ -153,9 +152,7 @@ class SimpleGPG:
                               style=STYLE_ERR)
 
     def decrypt(self):
-        message = questionary.text("Enter message to decrypt:", multiline=True).ask()
-        if message is None:
-            return
+        message = questionary.text("Enter message to decrypt:", multiline=True).unsafe_ask()
 
         decrypted = self.gpg.decrypt(message)
         if decrypted.ok:
@@ -169,9 +166,7 @@ class SimpleGPG:
         if signer_key is None:
             return
 
-        message = questionary.text("Enter message to sign:", multiline=True).ask()
-        if message is None:
-            return
+        message = questionary.text("Enter message to sign:", multiline=True).unsafe_ask()
 
         # TODO: Check OK Value after Signing
         signature = self.gpg.sign(message, keyid=signer_key)
@@ -180,9 +175,7 @@ class SimpleGPG:
         self.add_to_clipboard(signature_string)
 
     def verify_signature(self):
-        message = questionary.text("Enter message to verify:", multiline=True).ask()
-        if message is None:
-            return
+        message = questionary.text("Enter message to verify:", multiline=True).unsafe_ask()
 
         result = self.gpg.verify(message)
         if result:
@@ -201,9 +194,7 @@ class SimpleGPG:
             questionary.print("No keys configured. Create a keypair.", style=STYLE_ERR)
             return
 
-        selection = questionary.select("Which ID do you want to use?", choices=choices.keys(), use_shortcuts=True).ask()
-        if selection is None:
-            return None
+        selection = questionary.select("Which ID do you want to use?", choices=choices.keys(), use_shortcuts=True).unsafe_ask()
 
         selected_key_id = choices[selection][0:16]
         return selected_key_id
@@ -219,9 +210,7 @@ class SimpleGPG:
             questionary.print("No Public Keys available. Import Public Key.", style=STYLE_ERR)
             return
 
-        selection = questionary.select("Select Recipient", choices=choices.keys(), use_shortcuts=True).ask()
-        if selection is None:
-            return None
+        selection = questionary.select("Select Recipient", choices=choices.keys(), use_shortcuts=True).unsafe_ask()
 
         selected_key_id = choices[selection][0:16]
         return selected_key_id

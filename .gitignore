@@ -8,3 +8,5 @@ deprecated
 build
 *.spec
 venv
+alice
+bob
