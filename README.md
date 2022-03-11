@@ -94,3 +94,16 @@ export GPG_TTY
 - Password manager / GPG Key manager: seahorse
 - GPG Encrypt/Decrypt applet. openpgp-applet
 
+## Docker
+
+https://docs.docker.com/language/python/build-images/
+
+```bash
+sudo docker build --tag simplegpg-docker .
+sudo docker run simplegpg-docker
+sudo docker run -it simplegpg-docker
+
+sudo docker exec -it simplegpg-docker /bin/bash
+sudo docker exec -it simplegpg-docker /bin/sh
+
+```
